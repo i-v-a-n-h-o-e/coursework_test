@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1447856393 source:/run/user/1000/gvfs/smb-share:server=192.168.2.42,share=d/Документы/@Программирование/Курсовая/task_1/main.c
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+

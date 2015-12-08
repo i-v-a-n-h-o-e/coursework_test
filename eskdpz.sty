@@ -1,0 +1,834 @@
+\NeedsTeXFormat{LaTeX2e}
+
+\RequirePackage{indentfirst}	% Начинать абзацы с красной строки
+\RequirePackage{multicol}	% Многоколоночность
+\RequirePackage{textcomp}	% Ввод различных знаков
+\RequirePackage{floatflt}
+\RequirePackage{footnpag}	% Внешний вид сносок
+\RequirePackage{ifthen}
+\RequirePackage{geometry}	% Для остановки плавающих объектов
+\RequirePackage{float}
+\RequirePackage{rotating}	% Вращение объектов
+\RequirePackage{graphicx}
+\RequirePackage{calc}		% Для возможности численных расчетов
+\RequirePackage[bottom]{footmisc}  %Для установки сносок всегда внизу страницы 
+\RequirePackage{indentfirst}
+\RequirePackage{lastpage}
+\RequirePackage{everyshi}
+\RequirePackage{eso-pic}
+\RequirePackage{epsfig}
+\RequirePackage{psfrag}
+\RequirePackage{caption2}
+\RequirePackage{longtable}
+
+\ProvidesPackage{eskdpz}
+         [2002/12/12 v0.01 Unified system for design documentation PZ (???)]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\geometry{verbose,a4paper}%установка полей
+
+%FIXME: жидких строк не хочется
+%\sloppy
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Настройки размера страницы
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   \setlength{\headheight}{0pt}
+%   \setlength{\headsep}{0pt}
+\setlength{\topmargin}{-1.0cm}
+\addtolength{\textwidth}{-0.5cm}
+\setlength{\textheight}{22.5cm}
+\setlength{\oddsidemargin}{0.5cm}
+\setlength{\evensidemargin}{0pt}
+\setlength{\marginparsep}{0pt}
+\setlength{\marginparpush}{0pt}
+\parindent=15mm  % Абзацный отступ
+%\pargostzero=0mm
+\setlength{\leftmargini}{\parindent}
+\addtolength{\leftmargini}{5mm}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Переопределение пунктов
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\addtocounter{secnumdepth}{10}
+
+\ifnum \c@secnumdepth < 4
+\newcommand{\theengost}{\thesection.\@arabic\c@engost}%              
+\newcounter{engost}[section]
+\else                                                                         
+\ifnum \c@secnumdepth < 5
+\newcommand{\theengost}{\thesubsection.\@arabic\c@engost}%
+\newcounter{engost}[subsection]
+\else                                                                       
+\ifnum \c@secnumdepth < 6
+\newcommand{\theengost}{\thesubsubsection.\@arabic\c@engost}%
+\newcounter{engost}[subsubsection]
+\else
+\ifnum \c@secnumdepth < 7
+\newcommand{\theengost}{\theparagraph.\@arabic\c@engost}%
+\newcounter{engost}[paragraph]
+\else
+\ifnum \c@secnumdepth < 8
+\newcommand{\theengost}{\thesubparagraph.\@arabic\c@engost}%
+\newcounter{engost}[subparagraph]
+\else
+\newcommand{\theengost}{\@arabic\c@engost}%
+\newcounter{engost}
+\fi
+\fi
+\fi                                                                       
+\fi                                                                         
+\fi 
+\newenvironment{engost}%
+	       {%
+		 \renewcommand\item{%
+		   \par%
+		   \refstepcounter{engost}%
+		   \theengost
+		   %\arabic{section}.\arabic{subsection}.\arabic{engost}%
+		   \quad%
+		 }%
+               }%
+
+\newcounter{ensubgost}[engost]	    			
+\renewcommand{\theensubgost}{\theengost.\arabic{ensubgost}}%              
+\newenvironment{ensubgost}
+    {%
+    \renewcommand{\item}%
+    {
+    \par%
+    \refstepcounter{ensubgost}%
+    \theensubgost%
+    \quad%
+    }
+    }%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Раздел с новой страницы
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	\newcommand{\gostnewpage}{\newpage}                                     
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Переопределение вида разделов
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand\section{%
+  \renewcommand{\theengost}{\thesection.\@arabic\c@engost}
+  \setcounter{engost}{0}
+  %\gostnewpage
+  \@startsection {section}{1}{\parindent}%
+                 {-6.5ex \@plus -1ex \@minus -.2ex}%
+                 {2.3ex \@plus.2ex}%
+                 {\normalfont\Large\bfseries}}
+
+\renewcommand\subsection{%
+  \renewcommand{\theengost}{\thesubsection.\@arabic\c@engost}
+  \setcounter{engost}{0}
+  \@startsection{subsection}{2}{\parindent}%
+                {-3.25ex\@plus -1ex \@minus -.2ex}%
+                {1.5ex \@plus .2ex}%
+                {\normalfont\large\bfseries}}
+\renewcommand\subsubsection{%
+  \renewcommand{\theengost}{\thesubsubsection.\@arabic\c@engost}
+  \setcounter{engost}{0}
+  \@startsection{subsubsection}{3}{\parindent}%
+                {-3.25ex\@plus -1ex \@minus -.2ex}%
+                {1.5ex \@plus .2ex}%
+                {\normalfont\normalsize\bfseries}}
+\renewcommand\paragraph{%
+  \renewcommand{\theengost}{\theparagraph.\@arabic\c@engost}
+  \setcounter{engost}{0}
+  \@startsection{paragraph}{4}{\parindent}%
+                {3.25ex \@plus 1ex \@minus .2ex}%
+                {-1em}%
+                {\normalfont\normalsize\bfseries}}
+\renewcommand\subparagraph{%
+  \renewcommand{\theengost}{\thesubparagraph.\@arabic\c@engost}
+  \setcounter{engost}{0}
+  \@startsection{subparagraph}{5}{\parindent}%
+                {3.25ex \@plus1ex \@minus .2ex}%
+                {-1em}%
+                {\normalfont\normalsize\bfseries}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Титульный лист
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \def\gostgrifsoglasovano#1{\gdef\@gostgrifsoglasovano{#1}} 
+  \def\gostgrifutverjdeno#1{\gdef\@gostgrifutverjdeno{#1}} 
+  \def\gosttitleobject#1{\gdef\@gosttitleobject{#1}}
+  \def\gosttitledocument#1{\gdef\@gosttitledocument{#1}} 
+  \def\gostklgi#1{\gdef\@gostklgi{#1}} 
+  \def\gosttitlecompany#1{\gdef\@gosttitlecompany{#1}} 
+  \def\gostutverdil#1{\gdef\@gostutverdil{#1}}
+  \def\gostnormokontroler#1{\gdef\@gostnormokontroler{#1}} 
+  \def\gostrazrabotchik#1{\gdef\@gostrazrabotchik{#1}} 
+  \def\gostproveril#1{\gdef\@gostproveril{#1}} 
+  \def\gostispolnitel#1{\gdef\@gostispolnitel{#1}} 
+  
+  \gosttitlecompany{}
+  \gostnormokontroler{}
+  \gostrazrabotchik{}
+  \gostproveril{}
+  \gostklgi{}
+  \gosttitledocument{}
+  \gosttitleobject{~ }
+  \gostgrifutverjdeno{}
+  \gostgrifsoglasovano{}
+  \gostutverdil{}
+  \gostispolnitel{}
+
+  
+%  собственно команды формирования титульного листа
+\renewcommand\maketitle{%
+	\begin{titlepage}%
+		\let\footnotesize\small
+		\let\footnoterule\relax
+		\let \footnote \thanks
+		%  \null\vfil
+		\begin{center}
+			{\LARGE \@gosttitlecompany \par}%
+			\vskip 1cm
+		\end{center}
+		\par%
+		%{%\raggedleft%
+		\begin{tabular}{l}%
+			\ignorespaces                            
+			\@gostgrifsoglasovano
+		\end{tabular}                                                                
+		\hfill
+		\begin{tabular}{l}%
+			\ignorespaces                            
+			\@gostgrifutverjdeno
+		\end{tabular}
+		\vspace{1.4em}                                                               
+		\par
+		%}
+		\vskip 60\p@
+		\begin{center}%
+			\vskip 3em%
+			{\large%
+			\lineskip 2cm%
+			\addtolength{\parskip}{\baselineskip}
+			%      \begin{tabular}[t]{c}%
+			%        \@author
+			%		\par
+			\LARGE{\@gosttitleobject}
+			\par
+			\@gosttitledocument
+			\par
+			\@gostklgi
+			%      \end{tabular}
+			\par
+			}%
+			\vfill
+			\begin{flushleft}
+				%\addtolength{\parskip}{\baselineskip}
+				%исполнители:
+				%\par
+				%\vskip 5pt
+				%\hskip 1cm
+				\parindent=1cm
+				%\setlength{\baselineskip}{2\baselinestretch}
+				\baselineskip=0.8cm
+				\par
+				%\begin{tabular}{l}%
+					
+					\@gostispolnitel
+				%\end{tabular}
+			\end{flushleft}
+			\vfill
+			\vfill
+			{\large \@date \par}%
+		\end{center}
+%		\par
+%  \
+%  \@thanks
+%  \vfil\null
+\end{titlepage}%
+  \addtocounter{page}{1}
+  \setcounter{footnote}{0}%
+  \global\let\thanks\relax
+  \global\let\maketitle\relax
+  \global\let\@thanks\@empty
+  \global\let\@author\@empty
+  \global\let\@date\@empty
+%  \global\let\@gosttitlecompany\@empty
+  \global\let\@gostgrifsoglasovano\@empty
+  \global\let\@gostgrifutverjdeno\@empty
+%  \global\let\@gostklgi\@empty
+%  \global\let\@gosttitleobject\@empty
+%  \global\let\@gosttitledocument\@empty
+  \global\let\gostgrifsoglasovano\relax
+  \global\let\gostgrifutverjdeno\relax
+  \global\let\gostklgi\relax
+  \global\let\gosttitleobject\relax
+  \global\let\gosttitledocument\relax
+  \global\let\gosttitlecompany\relax
+  \global\let\gostispolnitel\relax
+  \global\let\author\relax
+  \global\let\date\relax
+  \global\let\and\relax
+}
+
+%%% Настройки для фоновых рамок
+%\usepackage{eso-pic,graphicx}
+\newcommand\BackgroundPicture[2]{%
+ \setlength{\unitlength}{1pt}%
+ \put(0,\strip@pt\paperheight){%
+ \parbox[t][\paperheight]{\paperwidth}{%
+ \vfill 
+ \centering\includegraphics[angle=#2]{#1}
+ \vfill 
+}}} %
+
+%\usepackage{lastpage}
+%\usepackage{everyshi}
+% \renewcommand\thepage{\arabic{page} of \pageref{LastPage}}
+%\usepackage{epsfig}
+%\usepackage{psfrag}
+
+\newcounter{gostszv}
+\newcounter{gostszvv}
+\newlength{\gostorigline}%
+\newlength{\gostadnomin}%
+\newsavebox{\newgostboxik}%
+
+% Для вывода текста в бокс с указанными координатами углов
+% 1,2 координаты x,y левого нижнего угла, 3,4 правого верхнего угла
+% 5 выравнивание 6 текст
+\def\spbox#1#2#3#4#5#6{%
+%\def\spbox[6]{%
+  \put(#1,#2){%
+	  %\newcounter{szvv}
+	\setcounter{gostszv}{#3}%
+	\setcounter{gostszvv}{#4}%
+	\setcounter{gostszv}{\value{gostszv}-#1}%
+	\setcounter{gostszvv}{\value{gostszvv}-#2}%
+	\makebox(\value{gostszv},\value{gostszvv})[#5]{#6}%
+	}%
+}
+
+\def\spformedbox#1#2#3#4#5#6{%
+	\setcounter{gostszv}{#3}%
+	\setcounter{gostszvv}{#4}%
+	\setcounter{gostszv}{\value{gostszv}-#1}%
+	\setcounter{gostszvv}{\value{gostszvv}-#2}%
+	\setlength{\gostadnomin}{#3pt - #1pt}%ширина поля
+	{%
+	\sbox{\newgostboxik}{#6}%
+	\settowidth{\gostorigline}{\usebox{\newgostboxik}}%
+	%\framebox[\value{gostszv}]{}%
+	%\usebox{\newgostboxik}%
+	\put(#1,#2){%
+		\ifthenelse{\lengthtest{\gostorigline<\gostadnomin}}%
+			{\makebox(\value{gostszv},\value{gostszvv})[#5]%
+			{\usebox{\newgostboxik}}}%
+			{\makebox(\value{gostszv},\value{gostszvv})[#5]%
+			{\resizebox{\gostadnomin}{\height}{\usebox{\newgostboxik}}}}%
+	}%
+	}%
+}
+
+% Вывод текста в вертикальный бокс
+\def\vspbox#1#2#3#4#5#6{%
+  \put(#1,#2){%
+	  \setcounter{gostszv}{#3}%
+	  \setcounter{gostszvv}{#4}%
+	  \setcounter{gostszv}{\value{gostszv}-#1}%
+	  \setcounter{gostszvv}{\value{gostszvv}-#2}%
+	  \begin{sideways}%
+	  \makebox(\value{gostszv},\value{gostszvv})[#5]{#6}%
+	  \end{sideways}%
+	}%
+}%
+
+%\def\two@digits#1{\ifnum#1<10 0\fi\number#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Нижний колонтитул. Заполняем рамки текстом. 
+% Координаты задаются в pt, соответствующие координатам в просмотре
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\let\@oldoddfoot\@oddfoot
+\def\@oddfoot{%
+%  \setlength{\unitlength}{1mm}
+  \unitlength=1pt
+%  \begin{picture}(0,0)(87,0)
+%  \begin{picture}(0,0)(100,2)
+%  \begin{picture}(0,0)(100,68)
+%    \ifnum \thepage = 1
+%    \else
+%    \ifnum \thepage = 2
+%    % Вторая страница
+%		\spbox{524}{67}{579}{79}{c}{\pageref{LastPage}}
+%		\spbox{481}{67}{522}{79}{c}{\thepage}
+%		\spformedbox{106}{81}{167}{93}{l}{\textsl{\small\@gostrazrabotchik}}
+%		\spformedbox{105}{67}{167}{80}{l}{\textsl{\small\@gostproveril}}
+%		\spformedbox{105}{39}{167}{51}{l}{\textsl{\small\@gostnormokontroler}}
+%		\spformedbox{105}{25}{167}{37}{l}{\textsl{\small\@gostutverdil}}
+%		\spbox{242}{96}{578}{136}{c}{\LARGE{\@gostklgi}}
+%		\vspbox{38}{660}{202}{673}{c}{\normalsize\@gostklgi}
+%		\spbox{245}{25}{430}{92}{c}{\parbox{60mm}{\centering\small{\@gosttitleobject} \\ \@gosttitledocument}}
+%	\else
+    % Последующие страницы
+		%\spbox{524}{67}{579}{79}{\pageref{LastPage}}
+  \begin{minipage}{1.0\textwidth}
+    \begin{center}
+      \rule{\linewidth}{1.0mm}\\[2.0mm]
+      \includegraphics[width=0.20\textwidth]{./rapidlogo.pdf}
+    \end{center}
+    \begin{flushright}
+      \thepage
+    \end{flushright}
+  \end{minipage}
+  
+}
+%\def\@oddfoot{}
+%\def\pathtosharedresource{/usr/share/lyx/clipart/}
+\def\pathtosharedresource{.//}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% После вывода  каждой страницы выполняем следующий код
+%% Для вывода рамок
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\EveryShipout{%
+%  \ClearShipoutPicture{%
+%  \ifnum \thepage = 1
+%%параметры второго листа
+%    \AddToShipoutPicture{\BackgroundPicture{\pathtosharedresource gost_frame2.eps}{0}}
+%    %\enlargethispage{-4.8cm}
+%    \enlargethispage{-2.5cm}
+%	%\textheight=22.7cm
+%  \else
+%%параметры остальных листов
+%    \AddToShipoutPicture{\BackgroundPicture{\pathtosharedresource gost_frame3.eps}{0}}
+%  \fi
+%  }%
+%}
+
+\let\@evenhead\@oddhead
+\def\@oddhead{
+  \begin{minipage}{1.0\textwidth}
+    \begin{flushright}
+      \today\\[0.1mm] \rule{\linewidth}{0.5mm}
+    \end{flushright}
+  \end{minipage}
+}
+
+
+%\let\@evenfoot\@oddfoot
+%\let\@evenhead\@oddhead
+%\AddToShipoutPicture{\BackgroundPicture{\pathtosharedresource gost_frame1.eps}{0}}
+%%\setlength{\textheight}{27cm}
+%\setlength{\textheight}{24.7cm}
+%\enlargethispage{2.3cm}
+%\enlargethispage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Настройка вида подписей к рисункам и таблицам
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\usepackage{caption2}
+\renewcommand{\captionlabeldelim}{ ---}
+%\renewcommand\captionmargin{0.2cm}
+% Подпись к рисунку
+\addto\captionsrussian{%
+  \def\figurename{{\cyrРис.}}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Настройка номера формулы и ссылки на нее
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \def\@eqnnum{{\normalfont \normalcolor \theequation}}
+  \renewcommand{\theequation}{\arabic{equation}}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Центрирование содержания
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand\tableofcontents{%
+\begin{center}
+  {
+  \Large\bf\contentsname
+  }
+\end{center}
+    \@starttoc{toc}%
+    \newpage
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Вид строчек в содержании
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \renewcommand{\l@subsection}{\@dottedtocline{2}{0em}{2.3em}}
+  \renewcommand{\l@subsubsection}{\@dottedtocline{3}{0em}{3em}}
+
+\renewcommand*\l@section[2]{%
+  \ifnum \c@tocdepth >\z@
+    \addpenalty\@secpenalty
+    \addvspace{1.0em \@plus\p@}%
+%    \setlength\@tempdima{1.5em}%
+    % Ширина поля для номера страницы
+    %\renewcommand\@pnumwidth{5.55em}
+    \begingroup
+%      \leftskip 0 em\relax \rightskip \@tocrmarg \parfillskip -\rightskip
+%      \parindent 0em\relax\@afterindenttrue
+%      \interlinepenalty\@M
+%      \leavevmode
+    % Ширина номера пункта в содержании
+      \@tempdima 1.7 em\relax
+
+      \parindent \z@ \rightskip \@pnumwidth
+      \parfillskip -\@pnumwidth
+%      \parfillskip -\rightskip
+      \leavevmode %\bfseries
+%      \advance\leftskip\@tempdima \hskip -\leftskip
+      \advance\leftskip \@tempdima \null\nobreak\hskip -\leftskip
+%    Дальше выводим номер и название строки содержания
+     {\bfseries {#1}\nobreak }%
+     \leaders\hbox{%
+	 	$\m@th
+        \mkern \@dotsep mu\hbox{.}\mkern \@dotsep%
+        mu$}\hfill%
+     \nobreak%
+%    Здесь выводится номер страницы
+%     \hb@xt@\@pnumwidth{\hss #2}\par
+     \hb@xt@\@pnumwidth{\hfil\normalfont \normalcolor #2}%
+     \par%
+%
+%      
+%      #1\nobreak\hfil \nobreak\hb@xt@\@pnumwidth{\hss #2}\par
+    \endgroup
+  \fi}
+
+%  \renewcommand*{\l@section}{\@dottedtocline{1}{0em}{2.3em}}
+  
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Тире в перечислении (ненумерованном списке)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\labelitemi}{\normalfont\bfseries{--}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Команды, формирующие представление названия раздела
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Отвечает за представление номера раздела в тексте
+\newcommand{\sectname}[2]{%
+		\csname the#1\endcsname\quad
+}
+
+% Отвечает за представление номера раздела в содержании
+\newcommand{\sectnameintoc}[2]{%
+		\protect\numberline{\csname the#1\endcsname}%
+}
+
+% Команды между номером раздела и его названием
+\newcommand{\sectdop}[1]{%
+\interlinepenalty \@M%
+}
+
+%    \def\@seccntformat#1{%
+%	\ifthenelse{\equal{#1}{section}}
+%		{\appendixname ~ \csname the#1\endcsname \quad}
+%		{\csname the#1\endcsname \quad}
+%	\ifnum \z@ < 2
+%		\appendixname\ \csname the#1\endcsname \quad
+%	\else
+%		\csname the#1\endcsname \quad
+%	\fi
+%	}%
+
+%\renewcommand\sectionmark{HIHIHI}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%% Взято из latex.ltx и исправлено под наши требования %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\@sect#1#2#3#4#5#6[#7]#8{%
+  \ifnum #2>\c@secnumdepth
+    \let\@svsec\@empty
+  \else
+  % Если выводим нумерацию разделов
+    \refstepcounter{#1}%
+	% Здесь был @seccntformat
+    \protected@edef\@svsec{\sectname{#1}{#2}\relax}%
+  \fi
+  \@tempskipa #5\relax
+  \ifdim \@tempskipa>\z@
+    \begingroup
+      #6{%
+	  	
+	    % Выводится номер раздела
+        \@hangfrom{\hskip #3\relax\@svsec}%
+	% Выводится название раздела
+	\raggedright%
+          %\interlinepenalty \@M 
+	\sectdop{#2}#8
+	\@@par}%
+    \endgroup
+    \csname #1mark\endcsname{#7}%
+    \ifnum #2>\c@tocdepth \else
+      \addcontentsline{toc}{#1}{%
+        \ifnum #2>\c@secnumdepth \else
+%       \ifnum #2>\c@tocdepth \else
+          \sectnameintoc{#1}{#2}%
+        \fi
+        #7}%
+    \fi
+  \else
+    \def\@svsechd{%
+	\hyphenation{#8}%
+      #6{\hskip #3\relax
+      \@svsec #8}%
+      \csname #1mark\endcsname{#7}%
+      \addcontentsline{toc}{#1}{%
+        \ifnum #2>\c@secnumdepth \else
+          \protect\numberline{\csname the#1\endcsname}%
+        \fi
+        #7}}%
+  \fi
+  \@xsect{#5}}
+\def\@xsect#1{%
+  \@tempskipa #1\relax
+  \ifdim \@tempskipa>\z@
+    \par \nobreak
+    \vskip \@tempskipa
+    \@afterheading
+  \else
+    \@nobreakfalse
+    \global\@noskipsectrue
+    \everypar{%
+      \if@noskipsec
+        \global\@noskipsecfalse
+       {\setbox\z@\lastbox}%
+        \clubpenalty\@M
+        \begingroup \@svsechd \endgroup
+        \unskip
+        \@tempskipa #1\relax
+        \hskip -\@tempskipa
+      \else
+        \clubpenalty \@clubpenalty
+        \everypar{}%
+      \fi}%
+  \fi
+  \ignorespaces}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%% Взято из bk12.clo и исправлено под наши требования %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Настройки для 1-го уровня списка
+\def\@listi{\leftmargin\leftmargini
+%            \parsep 5\p@  \@plus2.5\p@ \@minus\p@
+            \parsep 0\p@  \@plus2.5\p@ \@minus\p@
+            \topsep 4\p@ \@plus2\p@   \@minus2\p@
+%				\topsep \z@
+%            \itemsep1\p@  \@plus2.5\p@ \@minus\p@}
+            \itemsep 1\p@}
+\let\@listI\@listi
+\@listi
+% Настройки для 2-го уровня списка
+\def\@listii {\leftmargin\leftmarginii
+              \labelwidth\leftmarginii
+              \advance\labelwidth-\labelsep
+              \topsep    1\p@   \@plus2.5\p@ \@minus\p@
+%				\topsep \z@
+              \parsep    1\p@ \@plus\p@    \@minus\p@
+              \itemsep   \parsep}
+% Настройки для 3-го уровня списка (в ГОСТ не используется)
+\def\@listiii{\leftmargin\leftmarginiii
+              \labelwidth\leftmarginiii
+              \advance\labelwidth-\labelsep
+%              \topsep    2.5\p@\@plus\p@\@minus\p@
+				\topsep \z@
+              \parsep    \z@
+              \partopsep \p@ \@plus\z@ \@minus\p@
+              \itemsep   \topsep}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Определение изменений в оформлении приложений
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand\appendix{\par
+
+%\addtocounter{tocdepth}{-1}
+\setcounter{tocdepth}{1}
+
+  \renewcommand{\section}{
+    \renewcommand{\theengost}{\thesection.\@arabic\c@engost}
+    \setcounter{engost}{0}
+    \@startsection{section}
+     {1}
+     {0mm}
+     {-\baselineskip}
+     {\baselineskip}
+     {\newpage\Large\bf\centering}}%
+
+
+   \addtocontents{toc}{\vskip 12pt }
+
+  \setcounter{section}{0}%
+  \setcounter{subsection}{0}%
+
+% Отвечает за представление названия раздела в тексте
+\renewcommand{\sectname}[2]{%
+	\ifnum ##2 > 1
+		\csname the##1\endcsname\quad
+	\else
+		\appendixname\ \csname the##1\endcsname
+	\fi
+}
+
+% Отвечает за представление названия раздела в содержании
+\renewcommand{\sectnameintoc}[2]{%
+	\ifnum ##2 > 1
+		\protect\numberline{\csname the##1\endcsname}%
+	\else
+		\protect\appendixname\ \numberline{\csname the##1\endcsname}
+	\fi
+}
+
+% Отвечает за перенесение названия раздела на другую строку в приложении
+\renewcommand{\sectdop}[1]{%
+	\ifnum ##1 > 1
+%
+	\else
+		\\
+	\fi
+}
+
+  \renewcommand{\thesection}{\GostAsbuk{section}}%
+
+% Нумерация рисунков с указанием номера приложения
+  \@addtoreset{figure}{section}%                                                   
+  \renewcommand{\thefigure}{\thesection.\arabic{figure}}%
+  
+% Нумерация таблиц с указанием номера приложения
+  \@addtoreset{table}{section}%                                                   
+  \renewcommand{\thetable}{\thesection.\arabic{table}}%
+  
+% Нумерация формул с указанием номера приложения
+  \@addtoreset{equation}{section}%                                                   
+  \renewcommand{\theequation}{\thesection.\arabic{equation}}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Сноски со скобкой
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ \renewcommand\thefootnote{\@arabic\c@footnote)}%   
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Исключение двусмысленных русских букв из алфавита 
+%для нумерации приложений
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\GostAsbuk#1{\expandafter\@GostAsbuk\csname c@#1\endcsname}                         
+\def\@GostAsbuk#1{\ifcase#1\or                                                      
+\CYRA\or\CYRB\or\CYRV\or\CYRG\or\CYRD\or\CYRE\or\CYRZH\or                     
+\CYRI\or\CYRK\or\CYRL\or\CYRM\or\CYRN\or                      
+\CYRP\or\CYRR\or\CYRS\or\CYRT\or\CYRU\or\CYRF\or\CYRH\or
+\CYRC\or\CYRSH\or\CYRSHCH\or\CYREREV\or\CYRYU\or                     
+\CYRYA\else\@ctrerr\fi}                                                       
+
+
+% Для выравнивания длинных таблиц
+%\usepackage{longtable}
+\LTleft=\z@
+\LTright=\fill
+
+\def\LT@makecaption#1#2#3{%                                                     
+  \LT@mcol\LT@cols l{\hbox to\z@{\parbox[t]\LTcapwidth{%                    
+      \sbox\@tempboxa{#1{#2\captionlabeldelim{} }#3}%                                                
+          {\box\@tempboxa\hfil}%                                 
+          \endgraf}%                                               
+    \hss}}} 
+
+\newcommand{\rem}[1]{}
+
+
+
+\def\NoFrames{
+\ClearShipoutPicture
+\renewcommand\BackgroundPicture[2]{}
+\let\@oddfoot\@oldoddfoot
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% Далее текст документа %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newenvironment{gostitemize}
+  {\begin{itemize}{}
+	  %\itemsep=-1mm%
+	  \setlength{\itemindent}{\parindent}%
+	  %\addtolength{\itemindent}{5mm}%
+	  %\listparindent=25mm%
+	  %\leftmargin=15mm
+	}
+  {\end{itemize}
+
+}
+  \renewcommand{\theenumi}{\arabic{enumi}}
+  \renewcommand{\theenumii}{\asbuk{enumii}}
+  \renewcommand\labelenumi{\theenumi)}
+  \renewcommand\labelenumii{\theenumii)}   
+  \newenvironment{gostenumerate}
+                 {\begin{enumerate}{}
+                     \itemsep=-1mm%
+                     \partopsep=-2mm%
+    %                 \parsep=40mm%
+     %                \topsep=40mm%
+      %               \parskip=40mm%
+   %                  \setlength{\itemindent}{\parindent}%
+  %                   \addtolength{\itemindent}{5mm}%
+ %                    \listparindent=25mm%
+%                     \leftmargin=15mm
+                 }
+                 {\end{enumerate}
+                   
+                 }
+                 
+%настройка продолжений таблиц
+                
+\LTleft=\z@
+\LTright=\fill
+
+\def\LT@makecaption#1#2#3{%                                                    
+  \LT@mcol\LT@cols l{\hbox to\z@{\parbox[t]\LTcapwidth{%
+     \ifx#3\space    
+         \sbox\@tempboxa{#1{}Продолжение таблицы \@arabic\c@table}%    
+      \else
+          \sbox\@tempboxa{#1{#2\captionlabeldelim{}}#3}%
+      \fi
+      {\box\@tempboxa\hfil}%
+      \endgraf}%                                              
+    \hss}}}
+
+ 
+\setlength\abovecaptionskip{2\p@}
+
+\setlength\belowcaptionskip{1\p@}
+
+
+
+\def\capfigure{figure}
+
+\def\captable{table}
+
+\long\def\@makecaption#1#2{%
+
+  \vskip\abovecaptionskip
+
+  \ifx\@captype\capfigure
+
+      \centering #1~--~#2 \par
+
+  \else
+
+      #1~--~#2 \par
+
+  \fi
+
+  \vskip\belowcaptionskip}
+\renewcommand{\@biblabel}[1]{#1}
+

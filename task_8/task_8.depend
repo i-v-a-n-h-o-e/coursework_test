@@ -1,0 +1,15 @@
+# depslib dependency file v1.0
+1448432924 source:d:\документы\@программирование\курсовая\task_8\main.c
+	<stdio.h>
+	<stdlib.h>
+
+1448440392 
+
+1448440392 source:d:\yandexdisk\documents\ivan\@Программирование\Курсовая\task_8\main.c
+	<stdio.h>
+	<stdlib.h>
+
+1448432924 source:/run/user/1000/gvfs/smb-share:server=192.168.2.42,share=d/Р”РѕРєСѓРјРµРЅС‚С‹/@РџСЂРѕРіСЂР°РјРјРёСЂРѕРІР°РЅРёРµ/РљСѓСЂСЃРѕРІР°СЏ/task_8/main.c
+	<stdio.h>
+	<stdlib.h>
+

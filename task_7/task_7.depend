@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1447864032 source:d:\документы\@программирование\курсовая\task_7\main.c
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+
